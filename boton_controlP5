@@ -1,0 +1,54 @@
+import processing.serial.*;
+import controlP5.*;
+
+ControlP5 cp5;
+Serial myPort;
+
+//variables
+int myColor = color(255);
+
+boolean rectOver = false;
+
+
+void setup() {
+  
+  size(400,400);
+   myPort = new Serial(this, Serial.list()[0], 9600);
+   cp5 = new ControlP5(this); // create a new button with name 'buttonA'
+
+  PImage[] imgs = {loadImage("button_a.png")};
+  
+  cp5.addButton("PRENDER_LED")
+     .setPosition(170,170);
+
+}
+
+void draw() {
+  background(myColor);
+  myColor = lerpColor(0,0,0);//color fondo
+
+}
+
+
+public void PRENDER_LED(int theValue) {
+   myPort.write(65);
+   println(Serial.list());
+}
+
+
+boolean overRect()  
+// restriccion para el puntero, cuando se posa sobre el boton 
+{ 
+  if (mouseX >= 170 && mouseX <= 170+50 && mouseY >= 170 && mouseY <= 170+20) 
+  {
+    return true;
+  } 
+  else 
+  {
+    return false;
+  }
+}
+
+
+
+
