@@ -1,0 +1,56 @@
+int leds[]={12,13};
+int in[]={1,2};
+int n;
+
+
+void setup()
+{
+  for(n=0 ; n<2 ;n++){
+   
+    pinMode(leds[n],OUTPUT);
+    pinMode(in[n],INPUT);
+ } 
+ 
+}
+
+void nodelay(int time){ //definiendo nodelay
+
+     unsigned long tiempoactual=millis();
+     unsigned long tiempo=tiempoactual;
+   
+     for(;tiempoactual-tiempo <= time; tiempoactual=millis()){
+    } 
+}
+
+void loop()
+{
+   if(digitalRead(in[0])== HIGH){//si se presiona el pulsador 1
+ 
+     unsigned long tiempoactual=millis();
+     unsigned long tiempo=tiempoactual;
+     
+   for(;tiempoactual-tiempo <=10000; tiempoactual=millis()){ // mantiene encendido el led rojo mientras transcurren los 10 seg
+     digitalWrite(leds[0],HIGH);
+    
+     nodelay(2000);    //despues de 2 seg prende led verde
+     digitalWrite(leds[1],HIGH);
+   
+   while(digitalRead(in[1])== HIGH && tiempoactual-tiempo <=10000 ){// mientras se presiona el pulsador 2
+        
+     tiempoactual=millis();
+     digitalWrite(leds[0],LOW); //led apagado durante medio seg
+     nodelay(500);    
+ 
+     digitalWrite(leds[0],HIGH);//led prendido durante medio seg
+     nodelay(500);
+    }  
+   }
+  }
+  
+    digitalWrite(leds[0],LOW);//si tiempo es mayor a 10 seg apaga leds
+    digitalWrite(leds[1],LOW);
+ 
+ }
+  
+
+
