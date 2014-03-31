@@ -1,0 +1,100 @@
+import org.firmata.*;
+import cc.arduino.*;
+import processing.serial.*;
+Serial myPort;
+
+  
+
+
+
+int rectX, rectY;      // Position of square button
+int rectSize = 90;     // Diameter of rect
+color rectColor, baseColor, rectcolor2;
+color rectHighlight;
+color currentColor;
+boolean rectOver = false;
+
+
+void setup() 
+{
+  
+  
+  size(300, 300);
+myPort = new Serial(this, Serial.list()[0], 9600);
+  rectColor = color(0);// color boton
+  rectcolor2 = color(255);// color cuando se presiona click
+  rectHighlight = color(100);//color cuando se posa el puntero
+  baseColor = color(40);//color del fondo
+  currentColor = baseColor;
+  rectX = width/2-rectSize/2;
+  rectY = height/2-rectSize/2;
+
+}
+
+void draw() 
+{
+  
+  update(mouseX, mouseY);
+  background(baseColor);
+  
+  if (rectOver) 
+  {
+    
+    fill(rectHighlight); //pinta cuando se posa el puntero 
+  } 
+  else 
+  {
+    fill(rectColor); // en otro caso tiene el color predefinido en un inicio
+  }
+  stroke(245,0,45);// define color para el borde del boton (rojo)
+  rect(rectX, rectY, rectSize, rectSize);
+  
+}
+
+void update(int x, int y) 
+{
+    rectOver = false;
+    if ( overRect(rectX, rectY, rectSize, rectSize) ) 
+    {
+      
+      rectOver = true;
+    }
+    
+}
+
+void mousePressed() 
+{
+  if (rectOver) //si es presionado el click, pinta y activa led
+  { rectHighlight=rectcolor2;
+    rectColor=rectcolor2;
+    myPort.write(65);// activa led en ide 
+   println(Serial.list());
+  }
+  
+}
+void mouseReleased()
+{
+  myPort.write(66);
+ if(rectOver)
+ {
+   rectHighlight=100;
+   rectColor=0;
+   
+ }
+ if(!rectOver)
+ {
+   rectColor=0;
+ }
+
+}
+boolean overRect(int x, int y, int width, int height)  
+{
+  if (mouseX >= x && mouseX <= x+width && mouseY >= y && mouseY <= y+height) 
+  {
+    return true;
+  } 
+  else 
+  {
+    return false;
+  }
+}
