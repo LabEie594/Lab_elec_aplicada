@@ -1,0 +1,67 @@
+import processing.serial.*;  //importamos la biblioteca necesaria para la conexion serial
+
+Serial myPort;                       // Creamos un objeto de la clase "Serial"
+int[] serialInArray = new int[3];    // Donde se guarda lo recibido ( se crea un nuevo array con int)
+int serialCount = 0;                 // Contador de cuantos byte son recibidos
+int xpos, ypos,zpos;                 // Posicion inicial para el cubo
+boolean firstContact = false;
+int inByte;   // Declara variable inByte entero
+
+void setup() {
+  
+  frameRate(60); // Define n° de fotogramas q se enviaran por segundo
+  size(640, 360, P3D); //Define dimensión de la ventana, P3D activa espacio tridimensional
+  stroke(100,100,100); //Color linea
+  fill(220,46,73); //Color relleno
+
+  println(Serial.list()); // Imprime la lista de puertos serie 
+  
+//Configuracion de la conexion serial, revisar el COM al que se encuentra conectado su arduino
+  myPort = new Serial(this, Serial.list()[0], 9600); 
+ 
+}
+
+void draw() {
+  background(0,0,100);
+  translate (320,180,20); // Especifica desplazamiento del cubo en la ventana
+  rotateX(map(xpos,0,255,0,2*PI));
+  rotateY(map(ypos,0,255,0,2*PI));
+  rotateZ(map(zpos,0,255,0,2*PI));
+
+  
+  box(100); // Dimension del cubo
+  delay(20);
+}
+void serialEvent(Serial myPort) {
+  
+int inByte = myPort.readChar();
+ 
+  if (firstContact == false) 
+    {
+       if (inByte == 'A') 
+       {
+       myPort.clear();          // Borra el bufer del puerto serial
+       firstContact = true;     // realizo primer contacto 
+       myPort.write('A');       // Pide por mas 
+       }
+    }
+  else 
+   {
+    
+    serialInArray[serialCount] = inByte; // Agrega el ultimo byte del puerto serial al array 
+    serialCount++;
+
+    // Si se tienen 3 byte
+    if (serialCount > 2 ) {
+      xpos = serialInArray[0];
+      ypos = serialInArray[1];
+      zpos = serialInArray[2];
+
+      println(xpos + "\t" + ypos + "\t" + zpos); // Imprime valores(solo para verificaión) 
+      
+      myPort.write('A'); // Envia una A para solicitar nuevas lecturas del sensor
+    
+      serialCount = 0;     // Resetea contador
+    }
+  }
+}
