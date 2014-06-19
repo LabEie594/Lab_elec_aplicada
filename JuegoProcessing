@@ -1,0 +1,317 @@
+import processing.serial.*;  //importamos la biblioteca necesaria para la conexion serial
+
+Serial myPort;                      
+int[] serialInArray = new int[3];   
+boolean firstContact = false;
+int serialCount = 0;                 
+int xpos;              
+int inByte;   // Declara variable inByte (valor entero)
+int x;
+int y1;
+int y2;
+int y3;
+int y4;
+int y5;
+int y6;
+int ym; 
+int r1=int(random(50, 650)); //la función random devuelve un ´valor inesperado que es un punto flotante
+int r2=int(random(50, 650)); // ya que genera números aleatorios dentro del rango especificado
+int r3=int(random(50, 650)); // en este cado de 50 a 650, pero sin tomar 650, como está dentro
+int r4=int(random(50, 650)); // de una función int devolverá un valor entero
+int r5=int(random(50, 650)); // rm son las moneda y r1 a r6 son los misíles
+int r6=int(random(50, 650));
+int rm=int(random(50, 650));
+float cohete_x= 2.5*xpos;    // convierte el valor a punto flotante y representa la pocisión del cohete en función del acelerómetro
+int cohete_y=350;            // se define la posición en el eje y del cohete que será fija 
+int contadorscore=0;         // contador del puntaje obtenido en 0
+int score=1;                // se asigna un puntaje inicial igual a 1 punto (requerido por el desafío)
+int delay;                  //se declara la variable entera delay
+
+PImage Fondo;       // PImage tipo de dato que almacena imágenes
+PImage cohete;
+PImage misil;
+PImage moneda;
+
+
+void setup() {
+  
+  size(700, 400);  //tamaño de la pantalla requerida por el desafío
+  frameRate(60);   //número de cuadros por segundos , en este caso refresca 60 veces por segundo
+  textSize(15);   //tamaño de las letras
+ 
+  Fondo = loadImage("Fondo.jpg");   // se cargan las imágenes anteriormente declaradas
+  cohete = loadImage("cohete.png");
+  misil = loadImage("misil.png");
+  moneda = loadImage("moneda.png");
+  
+  println(Serial.list()); // Imprime la lista de puertos serie 
+  
+  //Configuracion de la conexion serial, revisar el COM al que se encuentra conectado su arduino
+  myPort = new Serial(this, Serial.list()[0], 9600); 
+  
+}
+
+
+void draw() {    
+  
+        background(Fondo);            //el fondo de la pantalla será la imagen "fondo" anteriormente cargada
+        text("SCORE: "+ score,10,15);  //aparecerá en la pantalla el texto "score" que indica el puntaje...10 y 15 corresponden en donde se encontrará ubicado     
+        image(cohete,2.6*xpos,cohete_y); // aparecerá la imagen cohete en la posición del eje y establecida, y poscisión x según indique el acelerómetro
+                  
+      if (x > width)   //si x es mayor al ancho de la pantalla que se estableció anteriormente (700) 
+          {
+            x = 0;     // x es igual a cero 
+          }
+          x++;   // aumenta el valor de la variable x en uno
+          
+          if(y1 <= height)   //si y1 es menor  o igual al alto de la pantalla (400) 
+          {
+                  
+            image(misil, r1, y1);     // se ubica la imagen misil en la pantalla de acuerdo a las coordenadas r1 (que está en función random y que representa a x) e y1
+            y1++;                    //se incrementa y1
+                                     //esto se hace para que los los misiles avances de la parte superior de la pantalla hacia abajo
+         
+            
+            //si el cohete choca con un misil pierde
+            if(2.6*xpos<r1+16 && 2.6*xpos+27>r1 && y1>=cohete_y-50 && y1<=cohete_y+50) //si choca con eje x y con eje y
+            {                                                                          // los valores corresponden al tamañao de las imagenes del cohete (27x50) y del misil (16x50)
+              // entonces explota                   
+              score=score-2;                 //el puntaje disminuye en 2 puntos (requerido por el desafío)            
+              loop();
+              y1=20;                         // vuelve a aparecer otro misil desde posicion fija en y, x en random
+              r1=int(random(50, 650));
+            }
+            
+            if(score<=0)   // si el puntaje es igual a 0
+            {
+              background(0);   // la pantalla cambia su fondo a negro
+              text("GAME OVER",325,200); // //aparecen en pantalla game over
+             rm=-100;
+            }
+          }
+          
+          
+        
+        if(y1==height)    //se aplica misma metodología anterior para los demás misíles que van descendiendo y si estos chocan con el cohete, pero aplicando tiempos diferentes para
+                          //aparecer en pantalla
+        {
+          y1=20;
+          r1=int(random(50, 650));
+        }
+      
+      if(millis()>10000)               
+              {
+                
+                if(y2<=height)
+                  {
+                    image(misil, r2, y2);
+                    y2++;
+                  }
+                    
+                if(y2==height)
+                  {
+                    y2=20;
+                    r2=int(random(50, 650));
+                  }
+                  
+                if(2.6*xpos<r2+16 && 2.6*xpos+27>r2 && y2>=cohete_y-50 && y2<=cohete_y+50)
+                  {
+                    //explota                              
+                    score=score-2;                    
+                    redraw();
+                    y2=20;
+                    r2=int(random(50, 650));
+                  }
+            
+                if(score<=0)
+                  {
+                    background(0);
+                    text("GAME OVER",325,200);                                                    
+                  }
+              }
+              
+              if(millis()>30000)
+              {
+                
+                if(y3<=height)
+                  {
+                    image(misil, r3, y3);
+                    y3++;
+                  }
+                    
+                if(y3==height)
+                  {
+                    y3=20;
+                    r3=int(random(50, 650));
+                  }
+                  
+                if(2.6*xpos<r3+16 && 2.6*xpos+27>r3 && y3>=cohete_y-50 && y3<=cohete_y+50)
+                  {
+                    //explota                               
+                    score=score-2;                    
+                    redraw();
+                    y3=20;
+                    r3=int(random(50, 650));
+                  }
+            
+                if(score<=0)
+                  {
+                    background(0);
+                    text("GAME OVER",325,200);                                                      
+                  }
+              }
+              
+             if(millis()>50000)
+              {
+                
+                if(y4<=height)
+                  {
+                    image(misil, r4, y4);
+                    y4++;
+                  }
+                    
+                if(y4==height)
+                  {
+                    y4=20;
+                    r4=int(random(50, 650));
+                  }
+                  
+                if(2.6*xpos<r4+16 && 2.6*xpos+27>r4 && y4>=cohete_y-50 && y4<=cohete_y+50)
+                  {
+                    //explota                               
+                    score=score-2;                   
+                    redraw();
+                    y4=20;
+                    r4=int(random(50, 650));
+                  }
+            
+                if(score<=0)
+                  {
+                    background(0);
+                    text("GAME OVER",325,200);                                                      
+                  }
+              }
+              
+               if(millis()>100000)
+              {
+                
+                if(y5<=height)
+                  {
+                    image(misil, r5, y5);
+                    y5++;
+                  }
+                    
+                if(y5==height)
+                  {
+                    y5=20;
+                     r5=int(random(50, 650));
+                  }
+                  
+                if(2.6*xpos<r5+16 && 2.6*xpos+27>r5 && y5>=cohete_y-50 && y5<=cohete_y+50)
+                  {
+                    //explota                               
+                    score=score-2;                  
+                    redraw();
+                    y5=20;
+                    r5=int(random(50, 650));
+                  }
+            
+                if(score<=0)
+                  {
+                    background(0);
+                    text("GAME OVER",325,200);                                              
+                  }
+              }
+               
+                    if(millis()>150000)
+              {
+                
+                if(y6<=height)
+                  {
+                    image(misil, r6, y6);
+                    y6++;
+                  }
+                    
+                if(y6==height)
+                  {
+                    y6=20;
+                    r6=int(random(50, 650));
+                  }
+                  
+                if(2.6*xpos<r6+16 && 2.6*xpos+27>r6 && y6>=cohete_y-50 && y6<=cohete_y+50)
+                  {
+                    //explota         
+                    score=score-2;                   
+                    redraw();
+                    y6=20;
+                    r6=int(random(50, 650));
+                  }
+            
+                if(score<=0)
+                  {
+                    background(0);
+                    text("GAME OVER",325,200);                                                      
+                  }
+              } 
+              
+           if(millis()>0)       // ahora se analiza metodología para el caso de monedas
+              {
+                
+                if(ym<=height)    //si ym (random) es menor o igual al alto de la pantalla
+                  {
+                    image(moneda, rm, ym);   // aparece la imagen de la moneda y esta desciende
+                    ym++;
+                  }
+                    
+                if(ym==height)           
+                  {
+                    ym=20;
+                    rm=int(random(50, 650));   //la moneda aparece en la posición en el eje y igual a 20 y la posicion x queda  en random
+                  }
+                  
+                if(2.6*xpos<rm+16 && 2.6*xpos+27>rm && ym>=cohete_y-20 && ym<=cohete_y+20) //si el cohete choca con la moneda 
+                  {
+                    // entonces gana un punto                    
+                    score=score+1;  //se suma uno al puntaje total
+                    redraw();   //actualiza la pantalla con los datos actuales
+                    ym=20;  //vuelve a aparecer moneda
+                    rm=int(random(50, 650));
+                  }                            
+              } 
+      }
+
+      
+      
+      void serialEvent(Serial myPort) {
+        
+      int inByte = myPort.readChar();
+       
+        if (firstContact == false) 
+          {
+            
+             if (inByte == 'A') 
+             {
+             myPort.clear();          // Borra el bufer del puerto serial
+             firstContact = true;     // realizo primer contacto 
+             myPort.write('A');       // Pide por mas 
+             }
+          }
+          
+        else 
+         {
+          
+          serialInArray[serialCount] = inByte; // Agrega el ultimo byte del puerto serial al array 
+          serialCount++;
+      
+          // Si se tienen 3 byte
+          if (serialCount > 0 ) {
+            xpos = serialInArray[0];
+                   
+            println(xpos + "\t"); // Imprime valores(solo para verificaión) 
+            
+            myPort.write('A'); // Envia una A para solicitar nuevas lecturas del sensor
+            
+            serialCount = 0;     // Resetea contador
+          }
+   }
+}
