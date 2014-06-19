@@ -1,0 +1,112 @@
+//Importmos la Biblioteca para poder usar el Display LCD
+#include <LiquidCrystal.h>
+#include <Wire.h>  // Incluye la librería Wire
+#include "RTClib.h" // Incluye la librería RTClib
+RTC_DS1307 RTC; // Crea el objeto RTC
+//Inicializamos el display con los pines de interfaz
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+float temp; //Declaramos la variable de temperatura
+int sensorx = A1;                  // eje x del acelerometro
+int x; 
+
+ 
+/*Creamos un arreglo de 8 bytes
+donde haremos el caracter 'º' que necesitamos
+*/
+byte charGrado[8] = {
+0b01110,
+0b01010,
+0b01110,
+0b00000,
+0b00000,
+0b00000,
+0b00000,
+0b00000
+};
+ 
+void setup() {
+Serial.begin(9600);
+Wire.begin(); // Establece la velocidad de datos del bus I2C
+ establishContact();
+RTC.begin(); // Establece la velocidad de datos del RTC
+//Hacemos la inicializacion del display
+// En la configuracion le decimos que cuenta con 16 columnas y 2 filas
+lcd.begin(16, 2);
+//Imprimimos un mensaje
+
+
+
+}
+void loop() {
+//Hacemos la lectura de la temperatura
+temp = analogRead(A0)*5/1024.0;
+temp = temp - 0.5;
+temp = temp / 0.01;
+
+//float temp1=temp;
+int ldr = analogRead(A2);
+int ldrenviado=map(ldr,0,1023,0,255);
+
+delay(1);
+
+ x=constrain(analogRead(sensorx),0,400); 
+int xx=map(x,263,400,0,252); //mapea el valor analogo a 8 bits (263 a 400), re-mapea x desde el rango 0 a 252 segun rangos medidos
+  //Serial.write(xx);  //escribe en el puerto serial el valor de xx como un solo byte 
+   
+     Serial.write(xx);  //escribe en el puerto serial el valor de xx como un solo byte 
+  delay(100);   // retardo antes de la siguiente lectura
+DateTime now = RTC.now(); // Obtiene la fecha y hora del RTC 
+Serial.print(now.year(), DEC);
+Serial.print('/');
+Serial.print(now.month(), DEC);
+Serial.print('/');
+Serial.print(now.day(), DEC);
+Serial.print(' ');
+Serial.print(now.hour(), DEC);
+Serial.print(':');
+Serial.print(now.minute(), DEC);
+Serial.print(':');
+Serial.print(now.second(), DEC);
+Serial.println();
+
+
+/*
+La funcion lcd.setCursor tiene nos ayuda a posicionar el lugar donde vamos a escribir
+el primer dato hace referencia al renglon y el segundo dato hace referencia a la columna
+por lo tanto vamos a escribir en la primer columna, primer renglon
+*/
+lcd.setCursor(0,0);
+//Imprimimos el mensaje que esta dentro del parentesis
+lcd.print("Temp      eje");
+//Movemos el cursor para escribir en la primer columna, segundo renglon
+lcd.setCursor(0, 1);
+//En esta parte imprimimos la temperatura en el Display
+lcd.print(temp);
+//Aqui imprimimos el caracter 'º'
+lcd.write(byte(0));
+lcd.print("C");
+lcd.setCursor(11,1);
+lcd.print(x-335);
+
+//Hacemos un delay para que el display muestre el mensaje
+delay(2000);
+//Borramos el display
+lcd.clear();
+//Si la temperatura es mayor de 30 entonces se imprimira un
+//mensaje de aviso de temp alta
+if(temp>30.00){
+lcd.setCursor(0,0);
+lcd.print("La temperatura");
+lcd.setCursor(0,1);
+lcd.print("es muy alta");
+delay(2000);
+lcd.clear();
+}
+}
+
+void establishContact() {
+ while (Serial.available() <= 0) { //cuando no recibe datos
+      Serial.print('A');   // enviar A 
+      delay(300);
+  }
+}
