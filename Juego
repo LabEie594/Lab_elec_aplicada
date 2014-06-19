@@ -1,0 +1,38 @@
+int sensorx = A0;                  // eje x del acelerometro
+
+int x;                  
+
+int buttonState = 0; 
+const int  buttonPin = 2; 
+int lastButtonState = 0; 
+int buttonPushCounter = 0;
+
+
+void setup(){
+
+  Serial.begin(9600);// inicia la comunicacion serial, establece puerto serie a 9600 bps.
+  establishContact(); //enviar un byte para establecer contacto hasta recibir respuesta 
+  
+ }
+
+
+void loop() { 
+   
+  x=constrain(analogRead(sensorx),0,400); //restringe un número a un rango definido donde
+                                          // el primer parametro es el numero a restringir
+                                          //cero seria el numero de menor rango
+                                          // y 400 del de mayor rango
+                                         
+  int xx=map(x,263,400,0,252); //mapea el valor analogo a 8 bits (263 a 400), re-mapea x desde el rango 0 a 252 segun rangos medidos
+  Serial.write(xx);  //escribe en el puerto serial el valor de xx como un solo byte 
+  delay(100);   // retardo antes de la siguiente lectura
+  
+}
+
+void establishContact() {
+ while (Serial.available() <= 0) { //cuando no recibe datos
+      Serial.print('A');   // enviar A 
+      delay(300);
+  }
+}
+
